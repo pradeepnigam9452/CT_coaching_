@@ -1,101 +1,70 @@
-// import React, { useState } from 'react'
-// import { Link } from "react-router-dom";
-// import './Navbar.css'
-
-// const Navbar = () => {
-//   const [showLoginMenu, setShowLoginMenu] = useState(false);
-//     const [userName, setUserName] = useState("");
-// useEffect(() => {
-//     const name = localStorage.getItem("userName");
-//     if (name) setUserName(name);
-//   }, []);
-//   return (
-//     <div className='nav'>
-//       <ul className='nav-list'>
-//         <li><Link to="/">Home</Link></li>
-//         <li><Link to="/courses">Courses</Link></li>
-//         <li><Link to="/About">About</Link></li>
-//         <li><Link to="/contact">Contact</Link></li>
-//         <li><Link to="/signup">Signup</Link></li>
-
-//         <li
-//           className="login-dropdown"
-//           onClick={() => setShowLoginMenu(!showLoginMenu)}
-//         >
-//           <span>Login ▾</span>
-
-//           {showLoginMenu && (
-//             <ul className="dropdown-menu">
-//               <li>
-//                 <Link to="/login" onClick={() => setShowLoginMenu(false)}>
-//                   Student Login
-//                 </Link>
-//               </li>
-//               <li>
-//                 <Link to="/stafflogin " onClick={() => setShowLoginMenu(false)}>
-//                   Staff Login
-//                 </Link>
-//               </li>
-//             </ul>
-//           )}
-//         </li>
-//       </ul>
-//     </div>
-//   )
-// }
-
-// export default Navbar
-
-
-import React, { useState, useEffect } from 'react';
+import React from "react";
 import { Link } from "react-router-dom";
-import './Navbar.css'
 
 const Navbar = () => {
-  const [showLoginMenu, setShowLoginMenu] = useState(false);
-  const [userName, setUserName] = useState("");
-
-  // read username from localStorage on mount
-  useEffect(() => {
-    const name = localStorage.getItem("userName");
-    if (name) setUserName(name);
-  }, []);
-
   return (
-    <div className='nav'>
-      <ul className='nav-list'>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/courses">Courses</Link></li>
-        <li><Link to="/About">About</Link></li>
-        <li><Link to="/contact">Contact</Link></li>
+    <div className="navbar bg-base-100 shadow-sm px-4">
+      {/* Left */}
+      <div className="flex-1">
+        <Link to="/" className="btn btn-ghost text-xl">
+          CT
+        </Link>
+      </div>
 
-        {!userName ? (
-          <li
-            className="login-dropdown"
-            onClick={() => setShowLoginMenu(!showLoginMenu)}
-          >
-            <span>Login ▾</span>
-            {showLoginMenu && (
-              <ul className="dropdown-menu">
-                <li>
-                  <Link to="/login" onClick={() => setShowLoginMenu(false)}>
-                    Student Login
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/stafflogin" onClick={() => setShowLoginMenu(false)}>
-                    Staff Login
-                  </Link>
-                </li>
-              </ul>
-            )}
+      <div className="navbar-center">
+        <ul className="menu menu-horizontal px-5 gap-5">
+          <li>
+            <Link className="hover:text-primary" to="/">
+              Home
+            </Link>
           </li>
-        ) : (
-          <li>Hello, {userName}</li>
-        )}
-      </ul>
+          <li>
+            <Link className="hover:text-primary" to="/courses">
+              Courses
+            </Link>
+          </li>
+          <li>
+            <Link className="hover:text-primary" to="/about">
+              About
+            </Link>
+          </li>
+          <li>
+            <Link className="hover:text-primary" to="/contact">
+              Contact
+            </Link>
+            
+          </li>
+        </ul>
+      </div>
+
+      <div className="flex">
+        <div className="dropdown dropdown-end">
+          <button tabIndex={0} className="btn btn-ghost btn-circle avatar">
+            <div className="w-10 rounded-full">
+              <img
+                alt="User avatar"
+                src="https://cdn.pixabay.com/photo/2015/03/04/22/35/avatar-659652_960_720.png"
+              />
+            </div>
+          </button>
+
+          <ul
+            tabIndex={0}
+            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+          >
+            <li>
+            <Link className="hover:text-primary" to="/login">
+              login
+            </Link>
+          </li>
+            <li>
+              
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default Navbar;

@@ -1,74 +1,67 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./login.css";
-import '../user/Navbar.jsx'
-import '../user/Footer.jsx'
 import Navbar from "../user/Navbar.jsx";
 import Footer from "../user/Footer.jsx";
-
-import { useNavigate } from "react-router-dom";
-
 const Login = () => {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/auth/login",
-        form
-      );
-
+      const res = await axios.post("http://localhost:3000/login", { email, password });
       localStorage.setItem("token", res.data.token);
-
-      localStorage.setItem("userName", res.data.user.name); // here we can save user name 
-      alert("Login successful");
-      navigate("/");
-
-
+      localStorage.setItem("userName", res.data.user.name);
+      alert("Login successful! Welcome " + res.data.user.name);
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
-
-
-
 
   return (
     <>
     <Navbar />
-    <div className="auth-container">
-      <form className="auth-box" onSubmit={handleSubmit}>
-        <h2>Login</h2>
-
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
-
-        <button type="submit">Login</button>
-      </form>
-
-       
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="card w-96 bg-white shadow-xl animate-slideUp">
+        <div className="card-body">
+          <h2 className="text-center text-2xl font-bold">Login</h2>
+          {error && <div className="alert alert-error mt-2">{error}</div>}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-9">
+            <input
+              type="email"
+              placeholder="Email"
+              className="input input-bordered "
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="input input-bordered "
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <p> <a href="/signup"> Don't have an account? Sign up</a></p>
+            <br />
+            <button
+              type="submit"
+              className={`btn btn-primary ${loading ? "loading" : ""}`}
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
     <Footer />
     </>
@@ -76,79 +69,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from 'react'
-// import Navbar from '../user/Navbar'
-// import Footer from '../user/Footer'
-// import './Login.css'
-
-// const Login = () => {
-//   const [email, setEmail] = useState("")
-//   const [password, setPassword] = useState("")
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault() // prevent page reload
-
-//     console.log(email, password)
-//     // here you will send data to backend
-//   }
-
-//   return (
-//     <>
-//       <Navbar />
-
-//       <div className='container'>
-//         <form onSubmit={handleSubmit}>
-//           <h2>Login here</h2>
-
-//           <input
-//             type="email"
-//             placeholder="Enter your email"
-//             value={email}
-//             onChange={(e) => setEmail(e.target.value)}
-//             required
-//           />
-
-//           <input
-//             type="password"
-//             placeholder="Enter your password"
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//             required
-//           />
-
-//           <button type="submit">Login</button>
-//           <br />
-//           <p> <a href="/signup">Don't have account</a> </p>
-         
-//         </form>
-//       </div>
-
-//       <Footer />
-//     </>
-//   )
-// }
-
-// export default Login

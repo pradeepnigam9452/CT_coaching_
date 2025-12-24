@@ -2,15 +2,13 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-
 import studentRoutes from "./routes/student.routes.js";
 import courseRoutes from "./routes/course.routes.js"
 import authRoutes from "./routes/auth.routes.js"
-
 import logger from "./middleware/logger.js";
 
 const app = express();
-app.use(logger) // this is middleware it will run  every  api call
+app.use(logger);          // this is middleware it will run  every  api call
 app.use(cors());
 app.use(express.json());
  const DB_URL = "mongodb://127.0.0.1:27017/coaching-center";
@@ -23,14 +21,15 @@ async function main() {
     console.log(e);
   }
 }
-
 // students base route
 app.use("/api/students", studentRoutes);
 app.use("/api/course" , courseRoutes);
 app.use("/api/auth", authRoutes)
 
-app.get("/", (req, res) => {
-  res.send("Server running 🚀");
+
+
+app.use((req, res) => {
+  res.status(200).send("page not found")
 });
 
 app.listen(3000, () => {
@@ -39,26 +38,7 @@ app.listen(3000, () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // -----------------------here backend before updations (ROutes )
-
 // import express from "express";
 // import bcrypt from 'bcrypt'
 // import mongoose from "mongoose";

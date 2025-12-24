@@ -91,8 +91,19 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.post("/contact", async (req, res) => {
+  const { name, email, message } = req.body;
 
- export default router;
+  if (!name || !email || !message) {
+    return res.status(400).json({
+      message: "All fields are required",
+    });
+  }
+  console.log("📩 Contact Message:", { name, email, message });
+  res.status(200).json({
+    message: "Thank you for contacting CT Coaching Center!",
+  });
+});
 
 
-
+export default router;

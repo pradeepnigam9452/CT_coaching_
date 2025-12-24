@@ -7,7 +7,6 @@ import CourseDetails from "./componets/user/CourseDetails";
 import Contact from "./componets/user/Contact";
 import Login from "./componets/auth/Login";
 import Signup from "./componets/auth/SignUp";
-import LoginStaff from "./componets/Staff/LoginStaff";
 import StudentList from "./componets/student/StudentList";
 const App = () => {
   return (
@@ -19,8 +18,6 @@ const App = () => {
         <Route path="/contact" element={<Contact />}></Route>
         <Route path="/course/:id" element={<CourseDetails />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        {/* <Route path="/stafflogin" element={<LoginStaff />} /> */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/studentlist" element = {<StudentList />} />
       </Routes>
