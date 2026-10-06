@@ -27,7 +27,7 @@ const Courses = () => {
 
   useEffect(() => {
     getCourses()
-      .then(setCourses)
+      .then((data) => setCourses(Array.isArray(data) ? data : data?.courses || []))
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false));
   }, []);

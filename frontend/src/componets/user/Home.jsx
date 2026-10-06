@@ -131,7 +131,7 @@ const Home = () => {
 
   useEffect(() => {
     getCourses()
-      .then((data) => setCourses(data || []))
+      .then((data) => setCourses(Array.isArray(data) ? data : data?.courses || []))
       .catch((err) => console.error("Failed to load courses:", err))
       .finally(() => setLoadingCourses(false));
   }, []);

@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, ".", "");
-  const apiTarget = env.VITE_API_PROXY_TARGET || "http://localhost:3000";
+  const apiTarget = (env.VITE_API_PROXY_TARGET || "http://localhost:3000").replace(/\/+$/, "");
 
   return {
     plugins: [react(), tailwindcss()],
