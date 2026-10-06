@@ -1,194 +1,106 @@
-// this updated backend we need to change path in frontend 
+import "dotenv/config";
+import dns from "node:dns";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import authRoutes from "./routes/auth.routes.js";
 import studentRoutes from "./routes/student.routes.js";
-import courseRoutes from "./routes/course.routes.js"
-import authRoutes from "./routes/auth.routes.js"
+import teacherRoutes from "./routes/teacher.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import courseRoutes from "./routes/course.routes.js";
 import logger from "./middleware/logger.js";
 
-const app = express();
-app.use(logger);          // this is middleware it will run  every  api call
-app.use(cors());
-app.use(express.json());
- const DB_URL = "mongodb://127.0.0.1:27017/coaching-center";
-main();
-async function main() {
-  try {
-    await mongoose.connect(DB_URL);
-    console.log("Database connected");
-  } catch (e) {
-    console.log(e);
-  }
+// Ensure DNS resolvers can query Atlas SRV records reliably on Windows
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (e) {
+  console.log("DNS setServers warning:", e.message);
 }
-// students base route
-app.use("/api/students", studentRoutes);
-app.use("/api/course" , courseRoutes);
-app.use("/api/auth", authRoutes)
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+const DB_URL =
+  process.env.MONGODB_URI ||
+  process.env.DB_URL ||
+  "mongodb://127.0.0.1:27017/coaching-center";
 
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim());
 
+app.use(logger);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
+app.use(express.json());
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "CT Coaching Center LMS API",
+    dbState: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Mounted Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/student", studentRoutes);
+app.use("/api/teacher", teacherRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/course", courseRoutes);
+app.use("/api/courses", courseRoutes);
+
+// Backward compatibility for old student endpoints
+app.use("/api/students", async (req, res) => {
+  try {
+    const User = (await import("./models/User.js")).default;
+    const students = await User.find({ role: "student" }).select("-password");
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// 404 handler
 app.use((req, res) => {
-  res.status(200).send("page not found")
+  res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` });
 });
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err);
+  res
+    .status(err.status || 500)
+    .json({ message: err.message || "Internal server error" });
 });
 
+async function start() {
+  try {
+    await mongoose.connect(DB_URL, { serverSelectionTimeoutMS: 8000 });
+    console.log("MongoDB Database connected successfully to:", DB_URL.replace(/:([^:@]+)@/, ":****@"));
+  } catch (error) {
+    console.error("Primary DB connection error:", error.message);
+    // If Atlas connection fails, attempt fallback to local MongoDB
+    try {
+      console.log("Attempting fallback to local MongoDB: mongodb://127.0.0.1:27017/coaching-center");
+      await mongoose.connect("mongodb://127.0.0.1:27017/coaching-center");
+      console.log("Connected to fallback local MongoDB");
+    } catch (fallbackErr) {
+      console.error("Fatal DB error:", fallbackErr.message);
+    }
+  }
 
+  app.listen(PORT, () => {
+    console.log(`CT Coaching LMS Backend running on port ${PORT}`);
+  });
+}
 
-// -----------------------here backend before updations (ROutes )
-// import express from "express";
-// import bcrypt from 'bcrypt'
-// import mongoose from "mongoose";
-// import cors from "cors";
-// import Student from "./models/Student.js";
-// import Course from "./models/Course.js";
-// import Auth from "./models/Auth.js";
-// const PORT = 3000;
-// const app = express();
-// app.use(cors());
-// app.use(express.json());
-// import dotenv from "dotenv";
-// dotenv.config();
-// // for Data base
-// const DB_URL = "mongodb://127.0.0.1:27017/coaching-center";
-// main();
-// async function main() {
-//   try {
-//     await mongoose.connect(DB_URL);
-//     console.log("Database connected");
-//   } catch (e) {
-//     console.log(e);
-//   }
-// }
-// app.get("/", (req, res) => {
-//   res.send("Backend is running 🚀");
-// });
-
-// // for student info
-// app.get("/api/student",  async (req, res) => {
-//   const data = await Student.find({});
-//   res.json(data);
-// });
-
-// app.post("/api/addstudent", async (req, res) => {
-//   try {
-//     const { name, email, batch, role } = req.body;
-//     const user = await Student.create({
-//       name,
-//       email,
-//       batch,
-//       role,
-//     });
-//     // res.redirect("/api/student");
-//     res.status(201).json({
-//   message: "Student added successfully",
-//   user,
-// });
-
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(400).send(error.message);
-//   }
-// });
-
-// // for course info
-// app.get("/course", async (req, res) => {
-//   const data = await Course.find({});
-//   res.json(data);
-// });
-
-// app.get("/course/:id", async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const data = await Course.findById(id);
-//     if (!data) {
-//       return res.status(404).json({ error: "course not found " });
-//     }
-//     res.json(data);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// app.post("/addcourse", async (req, res) => {
-//   try {
-//     const {
-//       title,
-//       description,
-//       duration,
-//       price,
-//       mode,
-//       subject,
-//       batchStartDate,
-//       seatsAvailable,
-//       isActive,
-//     } = req.body;
-//     if (!title || !price || !duration) {
-//       return res.status(400).json({ message: "Required fields missing" });
-//     }
-
-//     const data = await Course.create({
-//       title,
-//       description,
-//       duration,
-//       price,
-//       mode,
-//       subject,
-//       batchStartDate,
-//       seatsAvailable,
-//       isActive,
-//     });
-
-//     res.status(201).json({
-//       message: "Course added successfully",
-//       data,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       message: "Failed to add course",
-//       error: error.message,
-//     });
-//   }
-// });
-
-// app.post("/signup", async (req, res) => {
-//   try {
-//     const { name, email, password, role } = req.body;
-//     if (!name || !email || !password) {
-//       return res.status(400).json({ message: "All fields are required" });
-//     }
-//     if (password.length < 6) {
-//       return res
-//         .status(400)
-//         .json({ message: "Password must be at least 6 characters" });
-//     }
-//     const existingUser = await Auth.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).json({ message: "Email already registered" });
-//     }
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     const user = await Auth.create({
-//       name,
-//       email,
-//       password: hashedPassword,
-//       // role: role || "student",
-//     });
-//     res.status(201).json({
-//       message: "Signup successful",
-//       user: {
-//         id: user._id,
-//         name: user.name,
-//         email: user.email,
-//         // role: user.role,
-//       },
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Signup failed", error: error.message });
-//   }
-// });
-
-// app.listen(PORT);
+start();

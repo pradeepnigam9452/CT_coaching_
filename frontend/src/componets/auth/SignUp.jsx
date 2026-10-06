@@ -1,186 +1,23 @@
-// import React, { useState } from "react";
-// import axios from "axios";
-// import './Login.css'
-// import Navbar from "../user/Navbar.jsx";
-// import Footer from "../user/Footer.jsx";
-// import { useNavigate } from "react-router-dom";
-
-
-// const Signup = () => {
-//   const [form, setForm] = useState({
-//     name: "",
-//     email: "",
-//     password: "",
-//   });
-//   const navigate = useNavigate();
-
-//   const handleChange = (e) => {
-//     setForm({ ...form, [e.target.name]: e.target.value });
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const res = await axios.post(
-//         "http://localhost:3000/api/auth/signup",
-//         form
-//       );
-//       alert("Signup successful");
-//       navigate("/");
-//       console.log(res.data);
-//     } catch (err) {
-//       alert(err.response?.data?.message || "Signup failed");
-//     }
-//   };
-
-//   return (
-//     <>
-//     <Navbar />
-//     <div className="auth-container">
-//       <form className="auth-box" onSubmit={handleSubmit}>
-//         <h2>Signup</h2>
-
-//         <input
-//           type="text"
-//           name="name"
-//           placeholder="Full Name"
-//           onChange={handleChange}
-//           required
-//         />
-
-//         <input
-//           type="email"
-//           name="email"
-//           placeholder="Email"
-//           onChange={handleChange}
-//           required
-//         />
-
-//         <input
-//           type="password"
-//           name="password"
-//           placeholder="Password"
-//           onChange={handleChange}
-//           required
-//         />
-
-//         <button type="submit">Signup</button>
-//       </form>
-//     </div>
-//     <Footer />
-
-//     </>
-//   );
-// };
-
-// export default Signup;
-
-
-// // import React, { useState } from "react";
-// // import Navbar from "../../componets/user/Navbar";
-// // import Footer from "../../componets/user/Footer";
-// // import axios from "axios";
-
-// // const SignupPage = () => {
-// //   const [form, setForm] = useState({
-// //     name: "",
-// //     email: "",
-// //     password: "",
-// //   });
-
-// //   const [message, setMessage] = useState("");
-// //   const [error, setError] = useState("");
-
-// //   // Handle input changes
-// //   const handleChange = (e) => {
-// //     setForm({ ...form, [e.target.name]: e.target.value });
-// //   };
-
-// //   // Handle form submission
-// //   const handleSubmit = async (e) => {
-// //     e.preventDefault();
-// //     setMessage("");
-// //     setError("");
-
-// //     try {
-// //       const res = await axios.post("http://localhost:3000/api/signup", form);
-// //       setMessage(res.data.message);
-// //       setForm({ name: "", email: "", password: "" });
-// //     } catch (err) {
-// //       setError(err.response?.data?.message || "Something went wrong");
-// //     }
-// //   };
-
-// //   return (
-// //     <>
-// //       <Navbar />
-
-// //       <div style={{ maxWidth: "500px", margin: "50px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
-// //         <h2>Signup</h2>
-
-// //         {message && <p style={{ color: "green" }}>{message}</p>}
-// //         {error && <p style={{ color: "red" }}>{error}</p>}
-
-// //         <form onSubmit={handleSubmit}>
-// //           <div style={{ marginBottom: "10px" }}>
-// //             <label>Name:</label>
-// //             <input
-// //               type="text"
-// //               name="name"
-// //               value={form.name}
-// //               onChange={handleChange}
-// //               required
-// //               style={{ width: "100%", padding: "8px" }}
-// //             />
-// //           </div>
-
-// //           <div style={{ marginBottom: "10px" }}>
-// //             <label>Email:</label>
-// //             <input
-// //               type="email"
-// //               name="email"
-// //               value={form.email}
-// //               onChange={handleChange}
-// //               required
-// //               style={{ width: "100%", padding: "8px" }}
-// //             />
-// //           </div>
-
-// //           <div style={{ marginBottom: "10px" }}>
-// //             <label>Password:</label>
-// //             <input
-// //               type="password"
-// //               name="password"
-// //               value={form.password}
-// //               onChange={handleChange}
-// //               required
-// //               style={{ width: "100%", padding: "8px" }}
-// //             />
-// //           </div>
-
-// //           <button type="submit" style={{ padding: "10px 20px" }}>
-// //             Signup
-// //           </button>
-// //         </form>
-// //       </div>
-
-// //       <Footer />
-// //     </>
-// //   );
-// // };
-
-// // export default SignupPage;
 import React, { useState } from "react";
-import axios from "axios";
+import { Link } from "react-router-dom";
 import Navbar from "../user/Navbar.jsx";
 import Footer from "../user/Footer.jsx";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.jsx";
+import { getErrorMessage } from "../../api/client.js";
+import { GraduationCap, Mail, Lock, User, Phone, Sparkles } from "lucide-react";
 
 const Signup = () => {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    batch: "FSD",
+    role: "student",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const { signupUser } = useAuth();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -191,70 +28,137 @@ const Signup = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post("http://localhost:3000/api/auth/signup", form);
-      alert("Signup successful!");
-      navigate("/login"); // Redirect to login page
-      console.log(res.data);
+      await signupUser(form);
     } catch (err) {
-      setError(err.response?.data?.message || "Signup failed");
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="card w-96 bg-white shadow-xl animate-slideUp">
-          <div className="card-body">
-            <h2 className="text-center text-2xl font-bold">Signup</h2>
-            {error && <div className="alert alert-error mt-2">{error}</div>}
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                className="input input-bordered w-full"
-                value={form.name}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                className="input input-bordered w-full"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                className="input input-bordered w-full"
-                value={form.password}
-                onChange={handleChange}
-                required
-              /> 
-               <a href="/login">    already have an account? Login</a>
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="card w-full max-w-md bg-white shadow-xl rounded-3xl border border-slate-200/80 overflow-hidden">
+          <div className="p-8 pb-3 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-sky-500 text-white flex items-center justify-center mx-auto shadow-md shadow-indigo-600/20 mb-3">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              Create Your Account
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">
+              Join CT Coaching Center and start your learning program.
+            </p>
+          </div>
+
+          <div className="p-8 pt-2">
+            {error && (
+              <div className="alert alert-error bg-rose-50 text-rose-700 border border-rose-200 text-xs font-semibold rounded-xl mb-4 p-3">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+              <div>
+                <label className="label text-xs font-bold text-slate-600">Full Name</label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="e.g. Amit Sharma"
+                    className="input input-sm input-bordered w-full pl-9 rounded-xl text-xs"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="label text-xs font-bold text-slate-600">Email Address</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="name@gmail.com"
+                    className="input input-sm input-bordered w-full pl-9 rounded-xl text-xs"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label text-xs font-bold text-slate-600">Phone</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    placeholder="+91 98765..."
+                    className="input input-sm input-bordered w-full rounded-xl text-xs"
+                    value={form.phone}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div>
+                  <label className="label text-xs font-bold text-slate-600">Batch Goal</label>
+                  <select
+                    name="batch"
+                    value={form.batch}
+                    onChange={handleChange}
+                    className="select select-sm select-bordered w-full rounded-xl text-xs"
+                  >
+                    <option value="FSD">Full Stack (FSD)</option>
+                    <option value="DSA">Data Structures (DSA)</option>
+                    <option value="DS">Data Science & AI</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="label text-xs font-bold text-slate-600">Password</label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Min 6 characters"
+                    className="input input-sm input-bordered w-full pl-9 rounded-xl text-xs"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
               <button
                 type="submit"
-                className={`btn btn-primary ${loading ? "loading" : ""}`}
+                className="btn btn-sm sm:btn-md bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl border-none shadow-md shadow-indigo-600/20 mt-2"
                 disabled={loading}
               >
-
-               
-                {loading ? "Signing up..." : "Signup"}
+                {loading ? "Creating Account..." : "Complete Registration"}
               </button>
             </form>
+
+            <p className="text-center text-xs text-slate-500 mt-4">
+              Already have an account?{" "}
+              <Link to="/login" className="text-indigo-600 font-bold hover:underline">
+                Sign In
+              </Link>
+            </p>
           </div>
         </div>
       </div>
+
       <Footer />
-    </>
+    </div>
   );
 };
 
